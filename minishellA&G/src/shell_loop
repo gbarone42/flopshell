@@ -1,0 +1,10 @@
+#include "..inc/minishell.h"
+
+int shell_loop(t_shell *shell, int flag)
+{
+    while(flag)
+    {
+        read_line();
+    }
+    return(flag);
+}

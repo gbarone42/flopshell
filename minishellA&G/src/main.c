@@ -1,11 +1,11 @@
 #include "..inc/minishell.h"
 
-int main
+int main()
 {
     int flag;
     flag = 0;
-    while(flag != NULL)
-    {
-        readline;
-    }
+    
+    shell = init_shell(&shell);
+    init_loop(&shell, &flag);
+
 }
