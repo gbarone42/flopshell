@@ -5,7 +5,7 @@ int shell_init(t_shell *shell)
     char *user;
 
     shell->in = dup(STDIN_FILENO);
-    shell->out = dup(STOUT_FILENO);
+    shell->out = dup(STDOUT_FILENO);
     shell->pipe[0] = -1;
     shell->pipe[1] = -1;
     shell->status = 0;
