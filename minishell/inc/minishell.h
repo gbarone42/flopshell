@@ -3,7 +3,7 @@
 
 # include <readline/readline.h>
 # include <readline/history.h>
-# include <unistd.h>       
+# include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
 # include <stdbool.h>
@@ -13,8 +13,10 @@
 # include <sys/time.h>
 # include <sys/wait.h>
 //# include "libft.h"
+# include "../libft/inc/libft.h"
 
-
+//////////////////////////////////////
+// Structure for the main shell
 typedef struct s_shell
 {
     char *prompt;
@@ -29,7 +31,7 @@ typedef struct s_shell
     int exit;
     bool history;
 }   t_shell;
-
+// Struttura per il lexer
 typedef struct s_lexer
 {
     int state;
@@ -39,7 +41,6 @@ typedef struct s_lexer
     char buffer[INPUT_SIZE];
     t_shell *shell;
 }   t_lexer;
-
 // Lista concatenata di token
 typedef struct s_token
 {
@@ -49,7 +50,6 @@ typedef struct s_token
     struct s_token *next;
     struct s_token *prev;
 }   t_token;
-
 // Lista concatenata di parser(?)
 typedef struct s_parser
 {
@@ -64,5 +64,6 @@ typedef struct s_parser
     struct s_parser *next;
     struct s_parser *prev;
 }   t_parser;
+//////////////////////////////////////
 
 #endif
