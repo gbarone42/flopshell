@@ -1,3 +1,7 @@
-iii
-size_t	ft_strlen(const char *str)
-
+GETENV
+DUP & DUP2
+PIPE
+FORK
+EXECVE
+OPEN fd
+CLOSE fd
