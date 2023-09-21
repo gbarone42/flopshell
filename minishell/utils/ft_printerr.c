@@ -16,4 +16,21 @@ ft_errstr(char *str)
         i++;
     }
 }
+
+void print_error()
+{
+    //
+    printf(" /\\_/\\  \n");
+    printf("( o.o ) \n");
+    printf(" > ^ <  \n");
+    printf("An error occurred!\n");
+}
+
+int main()
+{
+    // 
+    print_error();
+    
+    return 0;
+}
 //?
