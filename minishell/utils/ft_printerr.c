@@ -12,7 +12,8 @@ ft_errstr(char *str)
     i = 0;
     while(str[i] != '\0')
     {
-        ft_errchar(str[i])
+        ft_errchar(str[i]);
         i++;
     }
 }
+//?
