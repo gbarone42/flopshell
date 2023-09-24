@@ -64,7 +64,7 @@ typedef struct s_parser
     int numred;
     int *redirs;
     char **redir_name;
-    bool_exec;
+    bool    exec;
     struct s_parser *next;
     struct s_parser *prev;
 }   t_parser;
