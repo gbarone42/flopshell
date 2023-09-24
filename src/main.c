@@ -1,4 +1,4 @@
-#include "..inc/minishell.h"
+#include "../inc/minishell.h"
 
 //create global to handle exit_status
 int g_exit = FALSE;
@@ -22,7 +22,7 @@ int shell_init(t_shell *shell)
 
 void    shell_loop(t_shell *shell, int flag)
 {
-    	t_pars *command;
+    	t_parser *command;
 
         while (flag != TRUE)
         {
