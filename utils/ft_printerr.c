@@ -1,11 +1,11 @@
 #include "../inc/minishell.h"
 
-ft_errchar(char c)
+void    ft_errchar(char c)
 {
     write(2, &c, 1);
 }
 
-ft_errstr(char *str)
+void    ft_errstr(char *str)
 {
     int i;
     
@@ -17,7 +17,7 @@ ft_errstr(char *str)
     }
 }
 
-void print_error()
+void    print_error()
 {
     printf(" /\\_/\\  \n");
     printf("( o.o ) \n");
