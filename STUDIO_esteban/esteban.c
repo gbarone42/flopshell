@@ -85,3 +85,163 @@ int	main(int ac, char **av, char **env)
 	shell_loop(&shell);
 	return (0);
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void	shell_parser(t_shell *shell, t_pars **command)
+{
+	t_tok		*token;
+	static int	n;
+	int			i;
+	char		**inputs;
+
+	*command = NULL; // initializes command pointer to NULL-- command pointer is expected to hold a linked list of parsed command
+	token = NULL; // initializes  to NULL-- token used to store tokenized input obtained from the lex_tokenizer
+	n = 0; // keeps track of the number of token passed
+	i = 0; // used to iterate through the input array
+	inputs = input_split(shell); //split the user input into an array of strings. Each string in the inputs array represents a part of the user's command.
+	while (inputs[i]) //iterate through each element if of the input array
+	{
+		lex_tokenizer(shell, inputs[i], &token, &n);
+		pars_lstadd_back(command, pars_lstnew(i + 1));
+		pars_commander(token, pars_lstlast(*command));
+		tok_free(token);
+		token = NULL;
+		i++;
+	}
+	tok_free(token);
+	lex_free_inputs(inputs);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+void	lex_tokenizer(t_shell *shell, char *input, t_tok **token, int *id)
+{
+	t_lex	*lex;
+	int		i;
+
+	lex = (t_lex *)ft_calloc(1, sizeof(t_lex)); //allocates memory for the lex structure
+	lex->state = STATE_NORMAL; //initializes various fields
+	lex->type = -1;
+	lex->len = 0;
+	lex->shell = shell;
+	i = 0;
+	while (input[i] && lex->type != -2) //loop processes each character of the input string until the end of the string is reached or the lexer's type becomes -2. -2 is used to indicate the end of tokenization.
+	{
+		if (lex->state == STATE_NORMAL) // STATE_NORMAL == 0
+			state_normal(input[i], lex, token, id);
+		else if (lex->state == STATE_DOUBLE_QUOTE // STATE_DOUBLE_QUOTE == 1
+			|| lex->state == STATE_SINGLE_QUOTE) //STATE_SINGLE_QUOTE == 2
+			state_quotes(input[i], lex);
+		else if (lex->state == STATE_DOLLAR_SIGN) // STATE_DOLLAR_SIGN == 3
+			state_dollar(input[i], lex, token, id);
+		else if (lex->state == STATE_DOLLAR_SIGN_DOUBLE_QUOTE) //STATE_DOLLAR_SIGN_DOUBLE_QUOTE == 4
+			state_dollarquotes(input[i], lex, token, id);
+		else if (lex->state == STATE_REDIRECT) //STATE_REDIRECT == 5
+			state_redirect(input[i], lex, token, id);
+		i++;
+	}
+	lex_tokenizer_end(lex, token, id);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void	state_normal_dollar(t_lex *lex)
+{
+	lex->buffer[lex->len] = '$';
+	lex->len++;
+	lex->start = lex->len;
+	lex->state = STATE_DOLLAR_SIGN;
+}
+
+
+//In summary, the state_normal_space function is responsible for handling spaces encountered during lexical analysis.
+//When a space is encountered, it ensures that any content in the buffer is tokenized before resetting the buffer to prepare for the next token.
+//This helps tokenize input correctly, separating tokens by spaces.
+void	state_normal_space(t_lex *lex, t_tok **token, int *id) //lex: A pointer to a t_lex structure representing the lexer's state. token: A pointer to a pointer for a token linked list. id: An identifier for tokens.
+{
+	if (lex->len > 0) // This check is used to determine if there's any content in the buffer that needs to be tokenized.
+	{
+		lex->buffer[lex->len] = '\0'; //It null-terminates the buffer by setting lex->buffer[lex->len] to '\0'. This is necessary to turn the content in the buffer into a valid C string.
+		tok_lstadd(token, lex, id); // function to add the tokenized content in the buffer to the token linked list. The token is created from the data in lex, and id is used to identify the token.
+		lex->len = 0; //resets the lex->len to 0, indicating that the buffer is now empty and ready to receive new content.
+	}
+}
+
+void	state_normal(char c, t_lex *lex, t_tok **token, int *id) //c, which is the current character being processed, lex, a pointer to a t_lex structure that holds lexer state, token, a pointer to a pointer for a token linked list, and id, an identifier for tokens.
+{
+	//checks the value of c to determine how to handle it.
+	if (c == ' ')
+	{
+		state_normal_space(lex, token, id);
+	}
+	else if (c == DOUBLE_QUOTE)
+	{
+		lex->state = STATE_DOUBLE_QUOTE; //indicating that a double-quoted string is being processed.
+	}
+	else if (c == SINGLE_QUOTE)
+	{
+		lex->state = STATE_SINGLE_QUOTE; //indicating that a single-quoted string is being processed.
+	}
+	else if (c == '$')
+	{
+		state_normal_dollar(lex);
+	}
+	else if (c == '>' || c == '<') //when the lexer encounters a '>' or '<' character
+	{
+		if (lex->len > 0) //checks if lex->len (the length of the current token in the buffer) is greater than 0 //If lex->len is greater than 0, it means that the lexer has collected characters for a current token
+		{
+			lex->buffer[lex->len] = '\0'; // In this case, the code completes the current token by adding a null-terminator ('\0') at the current position in the buffer. This effectively marks the end of the token.
+			tok_lstadd(token, lex, id); //// Adding the current token to the token list
+			lex->len = 0; //resetting the lenght
+		}
+		lex_append(c, lex); //// Appending the redirection operator to the buffer
+		lex->state = STATE_REDIRECT; //transitioning to the redirection state //indicating that it's now processing a redirection operator.
+	}
+	else
+		lex_append(c, lex);
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void	state_quotes_single(char c, t_lex *lex) //function is responsible for processing characters inside single quotes 
+{ 
+	if (c == SINGLE_QUOTE) // c is a single quote (') //it means the end of the single-quoted section
+		lex->state = STATE_NORMAL; //function transitions the lexer's state back to STATE_NORMAL. This indicates that the lexer is no longer inside single quotes.
+	else //if c is not a single quote ('), it means the character is part of the content within single quotes
+		lex_append(c, lex); //the function appends c to the lexer's buffer using the lex_append function
+}
+
+void	state_quotes_double(char c, t_lex *lex) //function is responsible for processing characters inside double quotes (")
+{
+	if (c == DOUBLE_QUOTE) //if the character c is a double quote ("), it means the end of the double-quoted section.
+	{
+		lex->state = STATE_NORMAL; //transitions the lexer's state back to STATE_NORMAL, indicating that the lexer is no longer inside double quotes
+	}
+	else if (c == '$') //($), it may indicate the start of a variable substitution within double quotes
+	{
+		lex->buffer[lex->len] = '$'; // the function appends the dollar sign to the lexer's buffer
+		lex->len++; //increments the length (len)
+		lex->start = lex->len; // set the start position to the current lenght
+		lex->state = STATE_DOLLAR_SIGN_DOUBLE_QUOTE; //transitions the lexer's state to STATE_DOLLAR_SIGN_DOUBLE_QUOTE // ?? This state is used to handle variable substitution within double quotes.
+	}
+	else // If c is neither a double quote nor a dollar sign, it means it's part of the content within double quotes.
+		lex_append(c, lex); //function appends c to the lexer's buffer using the lex_append function
+}
+
+void	state_quotes(char c, t_lex *lex) // function serves as a dispatcher calls the appropriate handler function (state_quotes_double or state_quotes_single) depending on the state.
+{
+	if (lex->state == STATE_DOUBLE_QUOTE)
+		state_quotes_double(c, lex);
+	else if (lex->state == STATE_SINGLE_QUOTE)
+		state_quotes_single(c, lex);
+}
