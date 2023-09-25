@@ -30,8 +30,8 @@ int main()
     t_shell shell;
     int     flag;
 
-    flag = FALSE;  
-    shell = init_shell(&shell);//shell_init o init_shell? testa o croce?
-    shell_loop(&shell, &flag);// ⬆️
+    flag = FALSE;
+    shell = init_shell(&shell); // Initialize shell struct
+    shell_loop(&shell, &flag); // Initialize main loop
 
 }
