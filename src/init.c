@@ -11,7 +11,7 @@ int init_shell(t_shell *shell)
     shell->pipe[1] = -1;
     shell->status = 0;
     user = getenv("USER"); //NOTE : should add a check to ensure that user is not NULL before using it
-    shell->prompt = ft_strjoin(user, "@Agshell"); //Ensure that ft_strjoin correctly allocates memory and returns a valid pointer (also, consider checking the return value of ft_strjoin for errors.)
+    shell->prompt = ft_strjoin(user, "@LUshell"); //Ensure that ft_strjoin correctly allocates memory and returns a valid pointer (also, consider checking the return value of ft_strjoin for errors.)
     // Strjoin does the malloc
     free(user);
     //shell_env(env, shell);
