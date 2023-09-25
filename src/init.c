@@ -16,6 +16,7 @@ int init_shell(t_shell *shell)
     free(user);
     init_env(env, shell);
     //should include a return statement at the end of the function.
+    //prova
 }
 
 void init_env(char **env, t_shell shell)
