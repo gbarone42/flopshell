@@ -69,5 +69,20 @@ typedef struct s_parser
     struct s_parser *prev;
 }   t_parser;
 //////////////////////////////////////
-
+// States
+// il enum inizia da 0 di default
+enum    e_states
+{
+    STATE_NORMAL,
+    STATE_DOUBLE_QUOTE,
+    STATE_SINGLE_QUOTE,
+    STATE_DOLLAR_SIGN,
+    STATE_DOLLAR_SIGN_DOUBLE_QUOTE,
+    STATE_REDIRECT
+};
+//////////////////////////////////////
+// Initialization
+bool    init_shell(t_shell *shell);
+void    init_env(char **env, t_shell shell)
+// Parser
 #endif

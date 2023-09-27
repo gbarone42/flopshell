@@ -1,7 +1,7 @@
 #include "../inc/minishell.h"
 
 // Inizializza la struttura della shell
-int init_shell(t_shell *shell)
+bool init_shell(t_shell *shell)
 {
     char *user;
 
@@ -10,13 +10,14 @@ int init_shell(t_shell *shell)
     shell->pipe[0] = -1;
     shell->pipe[1] = -1;
     shell->status = 0;
-    user = getenv("USER"); //NOTE : should add a check to ensure that user is not NULL before using it
-    shell->prompt = ft_strjoin(user, "@LUshell"); //Ensure that ft_strjoin correctly allocates memory and returns a valid pointer (also, consider checking the return value of ft_strjoin for errors.)
-    // Strjoin does the malloc
+    user = getenv("USER");
+    if (!user) // added check on user
+        return (false);
+    shell->prompt = ft_strjoin(user, "@AGshell"); // Strjoin does the malloc
     free(user);
-    init_env(env, shell);
-    //should include a return statement at the end of the function.
-    //prova 26_09
+    if (!init_env(env, shell)) // returns false if initialization on enviroment is unsuccessful
+        return (false);
+    return (true); // return true if initialization is successful
 }
 
 void init_env(char **env, t_shell shell)
@@ -41,5 +42,4 @@ void init_env(char **env, t_shell shell)
     i = 0;
     while(path_env[i]);
         free(path_env[i]);
-    
 }

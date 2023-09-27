@@ -3,11 +3,11 @@
 //create global to handle exit_status
 int g_exit = FALSE;
 
-void    shell_loop(t_shell *shell, int flag)
+void    shell_loop(t_shell *shell, int exit_flag)
 {
     	t_parser *command;
 
-        while (flag != TRUE)
+        while (exit_flag != TRUE)
         {
             //signals
             shell->input = readline(shell->prompt);
@@ -28,10 +28,10 @@ void    shell_loop(t_shell *shell, int flag)
 int main()
 {
     t_shell shell;
-    int     flag;
+    int     exit_flag;
 
     flag = FALSE;
     shell = init_shell(&shell); // Initialize shell struct
     shell_loop(&shell, &flag); // Initialize main loop
-
+    return (0);
 }
