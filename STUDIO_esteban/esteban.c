@@ -245,3 +245,47 @@ void	state_quotes(char c, t_lex *lex) // function serves as a dispatcher calls t
 	else if (lex->state == STATE_SINGLE_QUOTE)
 		state_quotes_single(c, lex);
 }
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+int	pipe_numstr(const char *s, char pipe)
+{
+	size_t	i; //Keeps track of the current position in the string s.
+	size_t	n; //Stores the count of pipe characters found.
+	size_t	len; //Tracks the length of consecutive characters encountered before a pipe or the end of the string.
+	char	quote; //Stores the type of quote (single or double) if encountered
+
+	i = 0;
+	n = 0;
+	len = 0;
+	while (1) //infinite loop to traverse the input string
+	{
+		if (s[i] == pipe || s[i] == '\0') //Check if the current character (s[i]) is either the pipe character or the end of the string ('\0').
+		{								  //if the character is a pipe or the end of the string
+			if (len > 0)//If the length of characters seen before this point (len) is greater than 0; 
+				n++;	//increment the count (n) because this indicates a pipe character was found.
+			len = 0;	//Reset the length (len) to 0 to start counting characters for the next segment
+		}
+		if (s[i] == pipe && n == 0) //Check if a pipe character is encountered at the beginning of the string (when n == 0)
+			return (-1); //If so, return -1, indicating an error because a pipe cannot start a command.
+		else if (s[i] == DOUBLE_QUOTE || s[i] == SINGLE_QUOTE) //NOW HERE it checks for unmatched quotes
+		{
+			quote = s[i]; //Set quote to the current character (either " or ')
+			i++; //  Move to the next character
+			while (s[i] && s[i] != quote) //Start a loop that continues as long as the current character is not the same as the opening quote character and the current character is not the end of the string ('\0').
+				i++; //Increment the position to move to the next character.
+			if (s[i] == '\0') //Check if the loop exited because it reached the end of the string ('\0').
+				break ; //If the loop exited because it reached the end of the string, break out of the enclosing loop
+		}
+		else //If none of the above conditions are met, increment the len variable to keep track of consecutive characters.
+			len++;
+		if (s[i] == '\0') //Check if the end of the string is reached.
+			break ; // If so, break out of the loop
+		i++; //Increment the position i to process the next character in the string.
+	}
+	return (n); //After exiting the loop, return the count n, which represents the number of pipe characters found in the string.
+	//how does it exits??
+}
