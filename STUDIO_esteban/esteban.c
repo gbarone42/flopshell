@@ -293,3 +293,69 @@ int	pipe_numstr(const char *s, char pipe)
 	return (n); //After exiting the loop, return the count n, which represents the number of pipe characters found in the string.
 	//how does it exits??
 }
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//LEXER_INIT
+///////////////////////////////////////////////////////////////////////////////
+t_tok	*tok_lstnew(t_lex *lexer, int *id)
+{
+	t_tok	*new;
+
+	new = (t_tok *)ft_calloc(1, sizeof(t_tok)); //allocate memory for a new token
+	if (new == NULL)
+		return (NULL);
+	new->id = ++(*id); //assigns an unique identifier //The id parameter is a pointer to an integer, and ++(*id) increments the value pointed to by id and assigns it to the id field of the new token. This ensures that each token has a unique identifier.
+	if (lexer->type == REDIRECT) // It checks if the lexer's type field is REDIRECT
+		new->type = lexer->type; // If it is, the new token's type field is set to REDIRECT
+	else //otherwise
+		new->type = lex_type(lexer->buffer, lexer->shell);//calls the lex_type function to determine the token's type based on the contents of the lexer's buffer.
+	new->token = ft_strdup(lexer->buffer);//copies the token string from the lexer's buffer to the new token's token field
+	new->next = NULL; //initialized to NULL for the moment
+	new->prev = NULL; //initialized to NULL for the moment
+	return (new); //returns a pointer to the newly created token
+}
+
+t_tok	*tok_lstlast(t_tok *token)
+{
+	t_tok	*next;
+
+	if (token != NULL)
+	{
+		next = token;
+		while (1)
+		{
+			if (next->next == NULL)
+				return (next);
+			next = next->next;
+		}
+	}
+	return (NULL);
+}
+
+void	tok_lstadd_back(t_tok **token, t_tok *new)
+{
+	t_tok	*last;
+
+	if (!token)
+		return ;
+	if (*token == NULL)
+		*token = new;
+	else
+	{
+		last = tok_lstlast(*token);
+		if (last != NULL)
+		{
+			last->next = new;
+			new->prev = last;
+		}
+	}
+}
+
+void	tok_lstadd(t_tok **token, t_lex *lexer, int *id) //responsible for adding a new token to the end of a linked list of tokens //It takes as input a pointer to a pointer to the head of the token list (t_tok **token), a pointer to a lexer structure (t_lex *lexer), and a pointer to an integer identifier (int *id).
+{
+	tok_lstadd_back(token, tok_lstnew(lexer, id)); //calls the tok_lstnew function to allocate memory for a new token and initialize its fields based on the provided lexer and identifier.
+}
