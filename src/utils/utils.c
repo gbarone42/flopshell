@@ -1,8 +1,8 @@
-#include "../inc/minishell.h"
+#include "../../inc/minishell.h"
 
 void    shell_exit(t_shell *shell)
 {
-    
+    //
 }
 
 bool    ft_isvalid(char *str)

@@ -1,8 +1,8 @@
-#include "../inc/minishell.h"
+#include "../../inc/minishell.h"
 
 void    ft_errchar(char c)
 {
-    write(2, &c, 1);
+    write(STDERR_FILENO, &c, 1);
 }
 
 void    ft_errstr(char *str)
