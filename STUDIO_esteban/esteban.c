@@ -301,6 +301,7 @@ int	pipe_numstr(const char *s, char pipe)
 ///////////////////////////////////////////////////////////////////////////////
 //LEXER_INIT
 ///////////////////////////////////////////////////////////////////////////////
+
 t_tok	*tok_lstnew(t_lex *lexer, int *id)
 {
 	t_tok	*new;
@@ -319,16 +320,16 @@ t_tok	*tok_lstnew(t_lex *lexer, int *id)
 	return (new); //returns a pointer to the newly created token
 }
 
-t_tok	*tok_lstlast(t_tok *token)
+t_tok	*tok_lstlast(t_tok *token)//This function finds the last token in a linked list of tokens. //takes the head of the token list as input
 {
-	t_tok	*next;
+	t_tok	*next; //
 
 	if (token != NULL)
 	{
-		next = token;
-		while (1)
+		next = token; //pointer initialized  to the head of the list
+		while (1) //iterates through the list
 		{
-			if (next->next == NULL)
+			if (next->next == NULL) //until it finds the last token (where next->next == NULL). // EXAMPLE:  //Suppose we have a linked list of tokens: token1 -> token2 -> token3 -> NULL. When we call tok_lstlast(token1), it will return a pointer to token3, which is the last token in the list
 				return (next);
 			next = next->next;
 		}
@@ -336,21 +337,21 @@ t_tok	*tok_lstlast(t_tok *token)
 	return (NULL);
 }
 
-void	tok_lstadd_back(t_tok **token, t_tok *new)
+void	tok_lstadd_back(t_tok **token, t_tok *new) //It takes a pointer to a pointer to the head of the token list (token) and a pointer to the new token (new).
 {
 	t_tok	*last;
 
-	if (!token)
+	if (!token) //It checks if token is valid and whether the list is empty.
 		return ;
-	if (*token == NULL)
-		*token = new;
-	else
+	if (*token == NULL) //If the list is empty (*token is NULL)
+		*token = new; //it sets the head of the list to the new token (*token = new)
+	else //If the list is not empty
 	{
-		last = tok_lstlast(*token);
+		last = tok_lstlast(*token); //it finds the last token using tok_lstlast
 		if (last != NULL)
 		{
 			last->next = new;
-			new->prev = last;
+			new->prev = last; //appends the new token to the end by updating the next and prev pointers. (? ma è giusto cosi'?)
 		}
 	}
 }
