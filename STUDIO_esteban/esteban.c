@@ -294,9 +294,60 @@ int	pipe_numstr(const char *s, char pipe)
 	//how does it exits??
 }
 
+void	pipe_splitter(const char *s, char pipe, char **split, size_t n)
+{
+	size_t	i; // Keeps track of the current position in the input string.
+	size_t	j; // Represents the index of the current substring being processed.
+	size_t	len; // Tracks the length of the current substring.
+	char	quote; // Stores the type of quote (single or double) if encountered.
+	char	*tok; // Temporarily stores each extracted substring.
 
+	i = 0; // Initialize i to 0, starting at the beginning of the input string.
+	j = 0; // Initialize j to 0, representing the first substring.
+	len = 0; // Initialize len to 0, indicating no characters in the current substring yet.
 
+	while (j < n) // Loop through the input string while processing substrings.
+	{
+		if (s[i] == pipe || s[i] == '\0') // Check if the current character is a pipe or the end of the string.
+		{
+			if (len > 0) // If there are consecutive characters forming a substring:
+			{
+				tok = ft_substr(s, (unsigned int)(i - len), len); // Extract the substring.
+				split[j] = tok; // Store the substring in the split array.
+				j++; // Move to the next substring.
+			}
+			len = 0; // Reset len to 0 to start counting characters for the next segment.
+		}
+		else if (s[i] == DOUBLE_QUOTE || s[i] == SINGLE_QUOTE) // Handle quoted sections.
+		{
+			quote = s[i]; // Store the type of quote character encountered.
+			i++; // Move to the next character (skip the opening quote character).
+			len++; // Increment len to account for the quote character itself.
+			while (s[i] && s[i] != quote) // Continue until the closing quote or end of the string is found.
+			{
+				i++; // Move to the next character within the quoted section.
+				len++; // Increment len for each character within the quoted section.
+			}
+			len++; // Increment len to account for the closing quote character.
+		}
+		else // Handle regular characters.
+			len++; // Increment len for consecutive characters forming a substring.
 
+		i++; // Move to the next character in the input string.
+	}
+}
+
+char	**pipe_split(const char *s, char pipe)
+{
+	char	**split;
+	int		n;
+
+	n = pipe_numstr(s, pipe);
+	split = malloc(sizeof(*split) * ((size_t)n + 1));
+	pipe_splitter(s, pipe, split, n);
+	split[n] = NULL;
+	return (split);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //LEXER_INIT
