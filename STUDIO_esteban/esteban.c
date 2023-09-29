@@ -329,6 +329,78 @@ void	state_dollar(char c, t_lex *lex, t_tok **token, int *id)
 	else // If none of the above conditions are met, it's a regular character.
 		lex_append(c, lex); // Append the character to the lexer's buffer.
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+//LEX_STATE_DOLLARQUOTE
+///////////////////////////////////////////////////////////////////////////////
+void	state_dollarquote_end(t_lex *lex, t_tok **token, int *id)
+{
+	if (lex->len > 0) // Check if there are characters in the buffer.
+	{
+		if (numstr(lex->buffer, '$') > 2) // Check if there are more than two dollar signs in the buffer.
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+			tok_lstadd(token, lex, id); // Add the expanded token to the token list.
+			lex->len = 0; // Reset the buffer length.
+		}
+		else
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_expand(lex, lex->shell); // Perform variable expansion.
+			tok_lstadd(token, lex, id); // Add the expanded token to the token list.
+			lex->len = 0; // Reset the buffer length.
+		}
+		lex->state = STATE_NORMAL; // Set the lexer's state back to normal.
+	}
+	else
+		lex->state = STATE_NORMAL; // If the buffer is empty, set the lexer's state back to normal.
+}
+
+void	state_dollarquote_append(char c, t_lex *lex)
+{
+	if (lex->len > 0) // Check if there are characters in the buffer.
+	{
+		if (numstr(lex->buffer, '$') > 1) // Check if there are more than one dollar signs in the buffer.
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+			lex_append(c, lex); // Append the current character to the buffer.
+		}
+		else
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_expand(lex, lex->shell); // Perform variable expansion.
+			lex_append(c, lex); // Append the current character to the buffer.
+		}
+		lex->state = STATE_DOUBLE_QUOTE; // Set the lexer's state to double quote.
+	}
+	else
+	{
+		lex_append(c, lex); // If the buffer is empty, append the character to the buffer.
+		lex->state = STATE_DOUBLE_QUOTE; // Set the lexer's state to double quote.
+	}
+}
+
+
+void	state_dollarquotes(char c, t_lex *lex, t_tok **token, int *id)
+{
+	if (c == ' ' || c == '\\' || c == SINGLE_QUOTE) // Check if the current character is a space, backslash, or a single quote.
+	{
+		state_dollarquote_append(c, lex); // Call the state_dollarquote_append function to handle appending the character.
+	}
+	else if (c == DOUBLE_QUOTE) // Check if the current character is a double quote.
+	{
+		state_dollarquote_end(lex, token, id); // Call the state_dollarquote_end function to end the handling of double quotes.
+	}
+	else
+		lex_append(c, lex); // If none of the above conditions are met, append the character to the lexer's buffer.
+}
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //PIPE_SPLIT.c
 ///////////////////////////////////////////////////////////////////////////////
