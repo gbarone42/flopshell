@@ -42,6 +42,10 @@ void init_env(char **env, t_shell shell) //array of string of environment variab
     while(path_env[++i])
         shell->paths[i] = ft_strjoin(path_env[i], "/") //for each non-null element, it uses ft_strjoin to concatenate the element with a '/' character and stores the result in the shell->paths array
     i = 0;
-    while(path_env[i]);
-        free(path_env[i]); //frees each string element.
+    while (path_env[i]) {
+        free(path_env[i]);
+        i++;
+    }
+    // Free the path_env array itself
+    free(path_env);
 }
