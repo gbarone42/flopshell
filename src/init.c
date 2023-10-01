@@ -1,7 +1,7 @@
 #include "../inc/minishell.h"
 
 // Inizializza la struttura della shell
-bool init_shell(t_shell *shell)
+bool init_shell(t_shell *shell, char **env)
 {
     char *user;
 
@@ -10,6 +10,7 @@ bool init_shell(t_shell *shell)
     shell->pipe[0] = -1;
     shell->pipe[1] = -1;
     shell->status = 0;
+    shell->env = NULL;
     user = getenv("USER");
     if (!user) // added check on user
         return (false);
