@@ -26,7 +26,7 @@ void    shell_exit(t_shell *shell)
         free(shell->paths);
     }
 
-    ////da qua in poi non ci riguarda
+    ////da qua in poi non ci riguarda (al momento)
     // i = 0;
     // if (shell->export)
     // {
