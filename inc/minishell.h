@@ -23,11 +23,11 @@
 // Structure for the main shell
 typedef struct s_shell
 {
-    char *prompt;
+    char *prompt; // Info all'inizio della riga di comando
     char *input;
     char **env;
     char **paths;
-    int pipe[2];
+    int pipe[2]; // Array for the FD of the pipe input and output files
     int in;
     int out;
     int status;
@@ -38,7 +38,7 @@ typedef struct s_shell
 // Struttura per il lexer
 typedef struct s_lexer
 {
-    int state;
+    int state; // State tracker for tokenization purposes
     int type;
     int start;
     size_t len;
@@ -69,6 +69,10 @@ typedef struct s_parser
     struct s_parser *prev;
 }   t_parser;
 //////////////////////////////////////
+// Macros
+#define DOUBLE_QUOTES = '\"';
+#define SINGLE_QUOTES = '\'';
+/////////////////////////////////////
 // States
 // il enum inizia da 0 di default
 enum    e_states

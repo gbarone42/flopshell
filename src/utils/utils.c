@@ -21,3 +21,4 @@ bool    ft_isvalid(char *str)
     }
     return (true);
 }
+
