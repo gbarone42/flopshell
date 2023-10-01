@@ -21,7 +21,7 @@ bool init_shell(t_shell *shell, char **env)
     return (true); // return true if initialization is successful
 }
 
-void init_env(char **env, t_shell shell) //array of string of environment variable // and a pointer to a struct
+bool init_env(char **env, t_shell *shell) //array of string of environment variable // and a pointer to a struct
 {
     int i; 
     char **path_env;
