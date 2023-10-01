@@ -89,6 +89,6 @@ enum    e_states
 //////////////////////////////////////
 // Initialization
 bool    init_shell(t_shell *shell);
-void    init_env(char **env, t_shell shell)
+bool    init_env(char **env, t_shell *shell)
 // Parser
 #endif
