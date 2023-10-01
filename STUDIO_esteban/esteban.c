@@ -250,6 +250,155 @@ void	state_quotes(char c, t_lex *lex) // function serves as a dispatcher calls t
 		state_quotes_single(c, lex);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//LEX_STATE_DOLLAR
+///////////////////////////////////////////////////////////////////////////////
+void	state_dollar_append(char c, t_lex *lex)
+{
+	if (numstr(lex->buffer, '$') > 1) // Check if there are more than one dollar signs in the buffer.
+	{
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+		lex->buffer[lex->len] = c; // Append the current character to the buffer.
+		lex->len++; // Increment the buffer length.
+	}
+	else
+	{
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		lex_expand(lex, lex->shell); // Perform variable expansion.
+		lex->buffer[lex->len] = c; // Append the current character to the buffer.
+		lex->len++; // Increment the buffer length.
+	}
+	lex->state = STATE_NORMAL; // Set the lexer's state back to normal.
+}
+
+void	state_dollar_exp(char c, t_lex *lex)
+{
+	if (numstr(lex->buffer, '$') > 2) // Check if there are more than two dollar signs in the buffer.
+	{
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+	}
+	else
+	{
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		lex_expand(lex, lex->shell); // Perform variable expansion.
+	}
+	if (c == SINGLE_QUOTE)
+		lex->state = STATE_SINGLE_QUOTE; // Set the lexer's state to single quote.
+	else
+		lex->state = STATE_DOUBLE_QUOTE; // Set the lexer's state to double quote.
+}
+
+void	state_dollar_end(t_lex *lex, t_tok **token, int *id)
+{
+	if (numstr(lex->buffer, '$') > 1) // Check if there are more than one dollar signs in the buffer.
+	{
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+		tok_lstadd(token, lex, id); // Add the expanded token to the token list.
+		lex->len = 0; // Reset the buffer length.
+	}
+	else
+	{
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		lex_expand(lex, lex->shell); // Perform variable expansion.
+		tok_lstadd(token, lex, id); // Add the expanded token to the token list.
+		lex->len = 0; // Reset the buffer length.
+	}
+	lex->state = STATE_NORMAL; // Set the lexer's state back to normal.
+}
+
+void	state_dollar(char c, t_lex *lex, t_tok **token, int *id)
+{
+	if (c == ' ') // Check if the current character is a space.
+	{
+		if (lex->len > 0) // If there are characters in the buffer.
+			state_dollar_end(lex, token, id); // Call the state_dollar_end function to process the buffer.
+	}
+	else if (c == SINGLE_QUOTE || c == DOUBLE_QUOTE) // Check if the current character is a single or double quote.
+	{
+		if (lex->len > 0) // If there are characters in the buffer.
+			state_dollar_exp(c, lex); // Call the state_dollar_exp function to handle dollar sign expansion within quotes.
+	}
+	else if (c == '\\') // Check if the current character is a backslash.
+	{
+		if (lex->len > 0) // If there are characters in the buffer.
+			state_dollar_append(c, lex); // Call the state_dollar_append function to handle backslash.
+	}
+	else // If none of the above conditions are met, it's a regular character.
+		lex_append(c, lex); // Append the character to the lexer's buffer.
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//LEX_STATE_DOLLARQUOTE
+///////////////////////////////////////////////////////////////////////////////
+void	state_dollarquote_end(t_lex *lex, t_tok **token, int *id)
+{
+	if (lex->len > 0) // Check if there are characters in the buffer.
+	{
+		if (numstr(lex->buffer, '$') > 2) // Check if there are more than two dollar signs in the buffer.
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+			tok_lstadd(token, lex, id); // Add the expanded token to the token list.
+			lex->len = 0; // Reset the buffer length.
+		}
+		else
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_expand(lex, lex->shell); // Perform variable expansion.
+			tok_lstadd(token, lex, id); // Add the expanded token to the token list.
+			lex->len = 0; // Reset the buffer length.
+		}
+		lex->state = STATE_NORMAL; // Set the lexer's state back to normal.
+	}
+	else
+		lex->state = STATE_NORMAL; // If the buffer is empty, set the lexer's state back to normal.
+}
+
+void	state_dollarquote_append(char c, t_lex *lex)
+{
+	if (lex->len > 0) // Check if there are characters in the buffer.
+	{
+		if (numstr(lex->buffer, '$') > 1) // Check if there are more than one dollar signs in the buffer.
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_multiexpand(lex, lex->shell); // Perform multi-variable expansion.
+			lex_append(c, lex); // Append the current character to the buffer.
+		}
+		else
+		{
+			lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+			lex_expand(lex, lex->shell); // Perform variable expansion.
+			lex_append(c, lex); // Append the current character to the buffer.
+		}
+		lex->state = STATE_DOUBLE_QUOTE; // Set the lexer's state to double quote.
+	}
+	else
+	{
+		lex_append(c, lex); // If the buffer is empty, append the character to the buffer.
+		lex->state = STATE_DOUBLE_QUOTE; // Set the lexer's state to double quote.
+	}
+}
+
+
+void	state_dollarquotes(char c, t_lex *lex, t_tok **token, int *id)
+{
+	if (c == ' ' || c == '\\' || c == SINGLE_QUOTE) // Check if the current character is a space, backslash, or a single quote.
+	{
+		state_dollarquote_append(c, lex); // Call the state_dollarquote_append function to handle appending the character.
+	}
+	else if (c == DOUBLE_QUOTE) // Check if the current character is a double quote.
+	{
+		state_dollarquote_end(lex, token, id); // Call the state_dollarquote_end function to end the handling of double quotes.
+	}
+	else
+		lex_append(c, lex); // If none of the above conditions are met, append the character to the lexer's buffer.
+}
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,4 +441,122 @@ int	pipe_numstr(const char *s, char pipe)
 	}
 	return (n); //After exiting the loop, return the count n, which represents the number of pipe characters found in the string.
 	//how does it exits??
+}
+
+void	pipe_splitter(const char *s, char pipe, char **split, size_t n)
+{
+	size_t	i; // Keeps track of the current position in the input string.
+	size_t	j; // Represents the index of the current substring being processed.
+	size_t	len; // Tracks the length of the current substring.
+	char	quote; // Stores the type of quote (single or double) if encountered.
+	char	*tok; // Temporarily stores each extracted substring.
+
+	i = 0; // Initialize i to 0, starting at the beginning of the input string.
+	j = 0; // Initialize j to 0, representing the first substring.
+	len = 0; // Initialize len to 0, indicating no characters in the current substring yet.
+
+	while (j < n) // Loop through the input string while processing substrings.
+	{
+		if (s[i] == pipe || s[i] == '\0') // Check if the current character is a pipe or the end of the string.
+		{
+			if (len > 0) // If there are consecutive characters forming a substring:
+			{
+				tok = ft_substr(s, (unsigned int)(i - len), len); // Extract the substring.
+				split[j] = tok; // Store the substring in the split array.
+				j++; // Move to the next substring.
+			}
+			len = 0; // Reset len to 0 to start counting characters for the next segment.
+		}
+		else if (s[i] == DOUBLE_QUOTE || s[i] == SINGLE_QUOTE) // Handle quoted sections.
+		{
+			quote = s[i]; // Store the type of quote character encountered.
+			i++; // Move to the next character (skip the opening quote character).
+			len++; // Increment len to account for the quote character itself.
+			while (s[i] && s[i] != quote) // Continue until the closing quote or end of the string is found.
+			{
+				i++; // Move to the next character within the quoted section.
+				len++; // Increment len for each character within the quoted section.
+			}
+			len++; // Increment len to account for the closing quote character.
+		}
+		else // Handle regular characters.
+			len++; // Increment len for consecutive characters forming a substring.
+
+		i++; // Move to the next character in the input string.
+	}
+}
+
+char	**pipe_split(const char *s, char pipe)
+{
+	char	**split;
+	int		n;
+
+	n = pipe_numstr(s, pipe);
+	split = malloc(sizeof(*split) * ((size_t)n + 1));
+	pipe_splitter(s, pipe, split, n);
+	split[n] = NULL;
+	return (split);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//LEXER_INIT
+///////////////////////////////////////////////////////////////////////////////
+
+t_tok	*tok_lstnew(t_lex *lexer, int *id)
+{
+	t_tok	*new;
+
+	new = (t_tok *)ft_calloc(1, sizeof(t_tok)); //allocate memory for a new token
+	if (new == NULL)
+		return (NULL);
+	new->id = ++(*id); //assigns an unique identifier //The id parameter is a pointer to an integer, and ++(*id) increments the value pointed to by id and assigns it to the id field of the new token. This ensures that each token has a unique identifier.
+	if (lexer->type == REDIRECT) // It checks if the lexer's type field is REDIRECT
+		new->type = lexer->type; // If it is, the new token's type field is set to REDIRECT
+	else //otherwise
+		new->type = lex_type(lexer->buffer, lexer->shell);//calls the lex_type function to determine the token's type based on the contents of the lexer's buffer.
+	new->token = ft_strdup(lexer->buffer);//copies the token string from the lexer's buffer to the new token's token field
+	new->next = NULL; //initialized to NULL for the moment
+	new->prev = NULL; //initialized to NULL for the moment
+	return (new); //returns a pointer to the newly created token
+}
+
+t_tok	*tok_lstlast(t_tok *token)//This function finds the last token in a linked list of tokens. //takes the head of the token list as input
+{
+	t_tok	*next; //
+
+	if (token != NULL)
+	{
+		next = token; //pointer initialized  to the head of the list
+		while (1) //iterates through the list
+		{
+			if (next->next == NULL) //until it finds the last token (where next->next == NULL). // EXAMPLE:  //Suppose we have a linked list of tokens: token1 -> token2 -> token3 -> NULL. When we call tok_lstlast(token1), it will return a pointer to token3, which is the last token in the list
+				return (next);
+			next = next->next;
+		}
+	}
+	return (NULL);
+}
+
+void	tok_lstadd_back(t_tok **token, t_tok *new) //It takes a pointer to a pointer to the head of the token list (token) and a pointer to the new token (new).
+{
+	t_tok	*last;
+
+	if (!token) //It checks if token is valid and whether the list is empty.
+		return ;
+	if (*token == NULL) //If the list is empty (*token is NULL)
+		*token = new; //it sets the head of the list to the new token (*token = new)
+	else //If the list is not empty
+	{
+		last = tok_lstlast(*token); //it finds the last token using tok_lstlast
+		if (last != NULL)
+		{
+			last->next = new;
+			new->prev = last; //appends the new token to the end by updating the next and prev pointers. (? ma è giusto cosi'?)
+		}
+	}
+}
+
+void	tok_lstadd(t_tok **token, t_lex *lexer, int *id) //responsible for adding a new token to the end of a linked list of tokens //It takes as input a pointer to a pointer to the head of the token list (t_tok **token), a pointer to a lexer structure (t_lex *lexer), and a pointer to an integer identifier (int *id).
+{
+	tok_lstadd_back(token, tok_lstnew(lexer, id)); //calls the tok_lstnew function to allocate memory for a new token and initialize its fields based on the provided lexer and identifier.
 }
