@@ -1,6 +1,6 @@
 #include "../../inc/minishell.h"
 
-char **input_split(t_shell *shell) // Outputs the arguments ready for tokenization
+char **input_split(t_shell *shell, int exit_flag) // Outputs the arguments ready for tokenization
 {
     int pipes;
     char **inputs;
@@ -8,9 +8,9 @@ char **input_split(t_shell *shell) // Outputs the arguments ready for tokenizati
     if (pipe == -1)
     {
         ft_errstr("syntax error, unexpecteed token before: \"|\"\n"); // Stampa in STDERR
-        g_exit = 1;
-        shell->exit = g_exit;
-        return (NUll);
+        exit_flag = TRUE;
+        shell->exit = exit_flag;
+        return (NULL);
     }
     if (pipes > 1)
         inputs = pipe_split(shell->input, '|');

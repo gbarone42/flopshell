@@ -1,7 +1,8 @@
 #include "../inc/minishell.h"
 
-//create global to handle exit_status
-int g_exit = FALSE;
+// create global to handle exit_status
+// int g_exit = FALSE;
+// global not usable
 
 void    signal_handler(int sig)
 {
@@ -22,7 +23,7 @@ void    shell_loop(t_shell *shell, int exit_flag)
         {
             add_history(shell->input);
             shell_parser(shell, &command);
-            if (g_exit == FALSE)
+            if (exit_flag == FALSE)
                 // shell_executor (&command, shell);
             // pars_free(command);
             // free(shell->input)
@@ -35,9 +36,9 @@ int main()
     t_shell shell;
     int     exit_flag;
 
-    flag = FALSE;
+    exit_flag = FALSE;
     // Welcome message to print
     shell = init_shell(&shell); // Initialize shell struct
-    shell_loop(&shell, &flag); // Initialize main loop
+    shell_loop(&shell, &exit_flag); // Initialize main loop
     return (0);
 }

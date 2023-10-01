@@ -1,7 +1,7 @@
 #include "../../inc/minishell.h"
 
 // next-step : build parser
-void shell_parser(t_shell *shell, t_pars **command)
+void shell_parser(t_shell *shell, t_parser **command)
 {
     t_token *token;
     static int n;

@@ -20,14 +20,15 @@ bool init_shell(t_shell *shell)
     return (true); // return true if initialization is successful
 }
 
-void init_env(char **env, t_shell shell)
+void init_env(char **env, t_shell *shell)
 {
     int i; 
     char **path_env;
+
     i = 0;
-    while(env[i])
+    while (env[i])
         i++;
-    shell->env(char **)malloc(sizeof(char *) * i + 1);
+    shell->env = (char **)malloc(sizeof(char *) * i + 1);
     i = -1;
     while(env[i])
         shell->env[i] = ft_strdup(env[i]);
@@ -38,7 +39,7 @@ void init_env(char **env, t_shell shell)
     shell->paths = (char **)malloc(sizeof(char *) * i + 1);
     i = -1;
     while(path_env[++i])
-        shell->paths[i] = ft_strjoin(path_env[i], "/")
+        shell->paths[i] = ft_strjoin(path_env[i], "/");
     i = 0;
     while(path_env[i]);
         free(path_env[i]);

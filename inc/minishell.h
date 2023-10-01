@@ -17,8 +17,8 @@
 //////////////////////////////////////
 // Macros
 # define INPUT_SIZE 4242
-# define TRUE 0
-# define FALSE 1
+# define TRUE 1
+# define FALSE 0
 //////////////////////////////////////
 // Structure for the main shell
 typedef struct s_shell
@@ -70,8 +70,10 @@ typedef struct s_parser
 }   t_parser;
 //////////////////////////////////////
 // Macros
+
 #define DOUBLE_QUOTES = '\"';
 #define SINGLE_QUOTES = '\'';
+
 /////////////////////////////////////
 // States
 // il enum inizia da 0 di default
@@ -81,8 +83,8 @@ enum    e_states
     STATE_DOUBLE_QUOTE,
     STATE_SINGLE_QUOTE,
     STATE_DOLLAR_SIGN,
-    STATE_DOLLAR_SIGN_DOUBLE_QUOTE,
-    STATE_REDIRECT
+    STATE_DOLLAR_QUOTES,
+    STATE_REDIRECT,
 };
 //////////////////////////////////////
 // Initialization
