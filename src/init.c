@@ -30,7 +30,7 @@ bool init_env(char **env, t_shell *shell) //array of string of environment varia
     i = 0;
     while(env[i]) //counting the number of envirment variables until it reaches 'NULL'
         i++;
-    shell->env(char **)malloc(sizeof(char *) * i + 1); //allocates memory for an array of strings
+    shell->env = (char **)malloc(sizeof(char *) * i + 1); //allocates memory for an array of strings
     i = -1;
     while(env[i])
         shell->env[i] = ft_strdup(env[i]); //for each non-null element create a copy of the environment variable stored in the shell->env array
