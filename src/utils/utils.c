@@ -11,14 +11,13 @@ bool    ft_isvalid(char *str)
 
     i = 0;
     if (ft_strlen(str) < 1 || ft_strlen(str) > INPUT_SIZE)
-        return(true);
+        return(false);
     else
     {
         // pay attenction to extended ascii
-        if (str[i] < 32 && str[i] == 127)
+        if ((str[i] < 32 && str[i] != 127) || str[i] >= 128)
             return (false);
         i++;
     }
-    return (true);
+    return (true);//the string is valide
 }
-

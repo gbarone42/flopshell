@@ -399,7 +399,39 @@ void	state_dollarquotes(char c, t_lex *lex, t_tok **token, int *id)
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+//LEX_STATE_REDIRECT.c
+///////////////////////////////////////////////////////////////////////////////
 
+void	state_redirect(char c, t_lex *lex, t_tok **token, int *id)
+{
+	// Check if the current character (c) is a redirection operator ("<" or ">")
+	// and the buffer contains only that character (lex->len == 1) and it's not followed by another redirection operator.
+	if ((c == '<' && lex->buffer[lex->len - 1] != '>' && lex->len == 1)
+		|| (c == '>' && lex->buffer[lex->len - 1] != '<' && lex->len == 1))
+	{
+		lex_append(c, lex); // If it meets the criteria, append the character to the buffer and return.
+		return;
+	}
+	// Check if the current character (c) is one of "<>|$"
+	else if (ft_strchr("<>|$", c))
+	{
+		write(STDERR_FILENO, "syntax error near unexpected token", 35);
+		ft_printf(" \"%c\"\n", c);
+		lex->type = -2; // Indicate an error by setting lex->type to -2.
+		return;
+	}
+	if (lex->len > 0) // Check if there are characters in the buffer.
+	{
+		lex->type = REDIRECT; // Set the lexer's type to REDIRECT.
+		lex->buffer[lex->len] = '\0'; // Null-terminate the buffer.
+		tok_lstadd(token, lex, id); // Add the token to the token list.
+		lex->len = 0; // Reset the buffer length.
+	}
+	if (c != ' ')
+		lex_append(c, lex); // If the current character is not a space, append it to the buffer.
+	lex->state = STATE_NORMAL; // Set the lexer's state back to normal.
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //PIPE_SPLIT.c
