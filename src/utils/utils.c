@@ -2,7 +2,42 @@
 
 void    shell_exit(t_shell *shell)
 {
+    int	i;
+
+    i = 0;
+    rl_clear_history();
+    free(shell->input);
+    free(shell->prompt);// Free user input and prompt
     //
+    while (shell->env[i])
+    {
+        free(shell->env[i]); // Cleanup environment variables
+        i++;
+    }
+    free(shell->env);
+    i = 0;
+    if (shell->paths)
+    {
+        while (shell->paths[i])
+        {
+            free(shell->paths[i]);
+            i++;
+        }
+        free(shell->paths);
+    }
+
+    ////da qua in poi non ci riguarda
+    // i = 0;
+    // if (shell->export)
+    // {
+    //     while (shell->export[i])
+    //     {
+    //         free(shell->export[i]);
+    //         i++;
+    //     }
+    //     free(shell->export);
+    // }
+    // exit(g_exit);
 }
 
 bool    ft_isvalid(char *str)
