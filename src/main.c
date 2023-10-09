@@ -35,10 +35,29 @@ int main()
 {
     t_shell shell;
     int     exit_flag;
+    int     init_status;
 
     exit_flag = FALSE;
-    // Welcome message to print
-    shell = init_shell(&shell); // Initialize shell struct
-    shell_loop(&shell, &exit_flag); // Initialize main loop
-    return (0);
+    
+    init_status = init_shell(&shell);  // Initialize shell struct with error checking
+    if (init_status != SUCCESS)  // Assuming SUCCESS is a defined macro for successful initialization
+    {
+        printf(stderr, "Failed to initialize the shell.\n");
+        return init_status;  // Return initialization error code
+    }
+    
+    // Welcome message - it’s better to include it in a separate function for cleaner code
+    print_welcome_message();
+
+    shell_loop(&shell, &exit_flag);  // Initialize main loop
+
+    // Consider returning the exit status of the shell or last command executed
+    return shell.exit_status; 
+}
+
+
+void print_welcome_message()
+{
+    printf("Welcome to the shell!\n");
+    // More detailed welcome message or instructions can be added here
 }
